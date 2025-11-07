@@ -1,11 +1,12 @@
-﻿using System.Net.Http.Json;
+﻿using Microsoft.Extensions.Options;
+using System.Net.Http.Json;
 
 namespace CurrencyApp.Infrastructure.Providers.Nbp;
 public sealed class NbpClient
 {
     private readonly HttpClient _http;
     private readonly NbpOptions _opts;
-    public NbpClient(HttpClient http, NbpOptions opts) { _http = http; _opts = opts; }
+    public NbpClient(HttpClient http, IOptions<NbpOptions> opts) { _http = http; _opts = opts.Value; }
 
     public async Task<NbpSeriesResponse?> GetSeriesAgainstPlnAsync(string code, DateOnly from, DateOnly to, CancellationToken ct)
     {

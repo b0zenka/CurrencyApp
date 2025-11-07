@@ -39,6 +39,8 @@ builder.Services.Configure<ApiAddressesOptions>(
     builder.Configuration.GetSection(ApiAddressesOptions.SectionName));
 builder.Services.Configure<UiFormattingOptions>(
     builder.Configuration.GetSection(UiFormattingOptions.SectionName));
+builder.Services.Configure<NbpOptions>(
+    builder.Configuration.GetSection("Apis:Nbp"));
 
 // Middleware
 builder.Services.AddTransient<ExceptionMiddleware>();
@@ -50,8 +52,8 @@ builder.Services.AddKeyedTransient<IExchangeRateProvider, NbpExchangeRateProvide
 // HttpClient
 builder.Services.AddHttpClient<NbpClient>((sp, http) =>
 {
-    var cfg = sp.GetRequiredService<IOptions<ApiAddressesOptions>>().Value;
-    http.BaseAddress = new Uri(cfg.Nbp.BaseUrl.TrimEnd('/') + "/");
+    var nbp = sp.GetRequiredService<IOptions<NbpOptions>>().Value;
+    http.BaseAddress = new Uri(nbp.BaseUrl.TrimEnd('/') + "/");
 })
 .AddPolicyHandler(PollyPolicies.Retry());
 
