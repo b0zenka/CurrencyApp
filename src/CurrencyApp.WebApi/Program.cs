@@ -1,26 +1,77 @@
+using CurrencyApp.Application.Abstractions;
+using CurrencyApp.Application.Features.Exchange.GetRates;
+using CurrencyApp.Infrastructure.Configuration;
+using CurrencyApp.Infrastructure.Http;
+using CurrencyApp.Infrastructure.Providers;
+using CurrencyApp.Infrastructure.Providers.Nbp;
+using CurrencyApp.WebApi.Middleware;
+using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.Extensions.Options;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Serilog
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
+// Controllers + FluentValidation
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(opt =>
+    {
+        opt.JsonSerializerOptions.PropertyNamingPolicy = null;
+    });
+
 builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<GetRatesValidator>();
 
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
+// Options configuration
+builder.Services.Configure<ApiAddressesOptions>(
+    builder.Configuration.GetSection(ApiAddressesOptions.SectionName));
+builder.Services.Configure<UiFormattingOptions>(
+    builder.Configuration.GetSection(UiFormattingOptions.SectionName));
+
+// Middleware
+builder.Services.AddTransient<ExceptionMiddleware>();
+
+// Providers (Keyed Services) + Factory
+builder.Services.AddTransient<IRateProviderFactory, RateProviderFactory>();
+builder.Services.AddKeyedTransient<IExchangeRateProvider, NbpExchangeRateProvider>("nbp");
+
+// HttpClient
+builder.Services.AddHttpClient<NbpClient>((sp, http) =>
+{
+    var cfg = sp.GetRequiredService<IOptions<ApiAddressesOptions>>().Value;
+    http.BaseAddress = new Uri(cfg.Nbp.BaseUrl.TrimEnd('/') + "/");
+})
+.AddPolicyHandler(PollyPolicies.Retry());
+
+// Application services
+builder.Services.AddScoped<GetRatesHandler>();
+
+// Build
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Pipeline
+app.UseMiddleware<ExceptionMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
