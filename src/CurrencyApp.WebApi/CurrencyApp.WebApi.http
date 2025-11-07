@@ -1,6 +1,0 @@
-@CurrencyApp.WebApi_HostAddress = http://localhost:5191
-
-GET {{CurrencyApp.WebApi_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
