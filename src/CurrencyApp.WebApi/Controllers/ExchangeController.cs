@@ -32,5 +32,14 @@ public sealed class ExchangeController : ControllerBase
         var result = await _handler.Handle(query, ct);
         return result is null ? NoContent() : Ok(result);
     }
+
+    [HttpGet("providers")]
+    [ProducesResponseType(typeof(IEnumerable<ProviderDto>), 200)]
+    [ProducesResponseType(204)]
+    public IActionResult GetProviders([FromServices] IProviderCatalogService catalog)
+    {
+        var list = catalog.GetEnabled();
+        return list.Count == 0 ? NoContent() : Ok(list);
+    }
 }
 

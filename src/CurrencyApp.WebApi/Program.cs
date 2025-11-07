@@ -37,12 +37,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Options configuration
-builder.Services.Configure<ApiAddressesOptions>(
-    builder.Configuration.GetSection(ApiAddressesOptions.SectionName));
+builder.Services.Configure<ApiOptions>(
+    builder.Configuration.GetSection(ApiOptions.SectionName));
 builder.Services.Configure<UiFormattingOptions>(
     builder.Configuration.GetSection(UiFormattingOptions.SectionName));
 builder.Services.Configure<NbpOptions>(
-    builder.Configuration.GetSection("Apis:Nbp"));
+    builder.Configuration.GetSection("Nbp"));
 
 // Middleware
 builder.Services.AddTransient<ExceptionMiddleware>();
@@ -51,6 +51,7 @@ builder.Services.AddTransient<ExceptionMiddleware>();
 builder.Services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
 builder.Services.AddTransient<IRateProviderFactory, RateProviderFactory>();
 builder.Services.AddKeyedTransient<IExchangeRateProvider, NbpExchangeRateProvider>("nbp");
+builder.Services.AddSingleton<IProviderCatalogService, ProviderCatalogService>();
 
 // HttpClient
 builder.Services.AddHttpClient<NbpClient>((sp, http) =>
