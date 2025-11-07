@@ -4,7 +4,9 @@ using CurrencyApp.Infrastructure.Configuration;
 using CurrencyApp.Infrastructure.Http;
 using CurrencyApp.Infrastructure.Providers;
 using CurrencyApp.Infrastructure.Providers.Nbp;
+using CurrencyApp.Infrastructure.Time;
 using CurrencyApp.WebApi.Middleware;
+using CurrencyApp.WebApi.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.Extensions.Options;
@@ -29,7 +31,7 @@ builder.Services
     });
 
 builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddValidatorsFromAssemblyContaining<GetRatesValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<GetRatesRequestValidator>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -46,6 +48,7 @@ builder.Services.Configure<NbpOptions>(
 builder.Services.AddTransient<ExceptionMiddleware>();
 
 // Providers (Keyed Services) + Factory
+builder.Services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
 builder.Services.AddTransient<IRateProviderFactory, RateProviderFactory>();
 builder.Services.AddKeyedTransient<IExchangeRateProvider, NbpExchangeRateProvider>("nbp");
 
