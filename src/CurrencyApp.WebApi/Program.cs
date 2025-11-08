@@ -1,4 +1,5 @@
 using CurrencyApp.Application.Abstractions;
+using CurrencyApp.Application.Features.Currencies.GetCurrencies;
 using CurrencyApp.Application.Features.Exchange.GetRates;
 using CurrencyApp.Infrastructure.Configuration;
 using CurrencyApp.Infrastructure.Http;
@@ -41,6 +42,7 @@ builder.Services.Configure<ApiOptions>(
     builder.Configuration.GetSection(ApiOptions.SectionName));
 builder.Services.Configure<UiFormattingOptions>(
     builder.Configuration.GetSection(UiFormattingOptions.SectionName));
+builder.Services.AddSingleton<IUiFormatting, UiFormattingAdapter>();
 builder.Services.Configure<NbpOptions>(
     builder.Configuration.GetSection("Nbp"));
 
@@ -63,6 +65,7 @@ builder.Services.AddHttpClient<NbpClient>((sp, http) =>
 
 // Application services
 builder.Services.AddScoped<GetRatesHandler>();
+builder.Services.AddScoped<GetCurrenciesHandler>();
 
 // Build
 var app = builder.Build();

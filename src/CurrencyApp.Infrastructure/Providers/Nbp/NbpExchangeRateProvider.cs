@@ -33,9 +33,30 @@ public sealed class NbpExchangeRateProvider : IExchangeRateProvider
         return new ExchangeRateSeries(CurrencyCode.Of(sourceCode), CurrencyCode.Of(targetCode), points.OrderBy(p => p.Date).ToList());
     }
 
-    public Task<IReadOnlyList<(string Code, string Name)>> GetCurrenciesAsync(CancellationToken ct)
+    public async Task<IReadOnlyList<(string Code, string Name)>> GetCurrenciesAsync(CancellationToken ct)
     {
-        var list = new List<(string, string)> { ("PLN", "złoty polski"), ("EUR", "euro"), ("USD", "dolar amerykański"), ("GBP", "funt szterling"), ("CHF", "frank szwajcarski") };
-        return Task.FromResult<IReadOnlyList<(string, string)>>(list);
+        var list = new List<(string Code, string Name)>
+        {
+            ("PLN", "złoty polski")
+        };
+
+        var rates = await _client.GetCurrenciesFromTablesAsync(ct);
+
+        foreach (var r in rates)
+        {
+            var code = r.code?.ToUpperInvariant();
+
+            if (string.IsNullOrWhiteSpace(code)) 
+                continue;
+
+            if (code == "PLN") 
+                continue;
+
+            var name = string.IsNullOrWhiteSpace(r.currency) ? code : r.currency;
+            list.Add((code, name));
+        }
+
+        return list;
     }
+
 }
