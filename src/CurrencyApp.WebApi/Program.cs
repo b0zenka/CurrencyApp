@@ -1,16 +1,6 @@
-using CurrencyApp.Application.Abstractions;
-using CurrencyApp.Application.Features.Exchange.GetRates;
-using CurrencyApp.Infrastructure.Configuration;
-using CurrencyApp.Infrastructure.Dispatching;
-using CurrencyApp.Infrastructure.Http;
-using CurrencyApp.Infrastructure.Providers;
-using CurrencyApp.Infrastructure.Providers.Nbp;
-using CurrencyApp.Infrastructure.Time;
-using CurrencyApp.WebApi.Middleware;
-using CurrencyApp.WebApi.Validators;
-using FluentValidation;
-using FluentValidation.AspNetCore;
-using Microsoft.Extensions.Options;
+using CurrencyApp.Application;
+using CurrencyApp.Infrastructure;
+using CurrencyApp.WebApi;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,73 +13,22 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-// Controllers + FluentValidation
-builder.Services
-    .AddControllers()
-    .AddJsonOptions(opt =>
-    {
-        opt.JsonSerializerOptions.PropertyNamingPolicy = null;
-    });
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddWebApi();
 
-builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddValidatorsFromAssemblyContaining<GetRatesRequestValidator>();
-
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-// Options configuration
-builder.Services.Configure<ApiOptions>(
-    builder.Configuration.GetSection(ApiOptions.SectionName));
-builder.Services.Configure<UiFormattingOptions>(
-    builder.Configuration.GetSection(UiFormattingOptions.SectionName));
-builder.Services.AddSingleton<IUiFormatting, UiFormattingAdapter>();
-builder.Services.Configure<NbpOptions>(
-    builder.Configuration.GetSection("Nbp"));
-
-// Middleware
-builder.Services.AddTransient<ExceptionMiddleware>();
-
-// Providers (Keyed Services) + Factory
-builder.Services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
-builder.Services.AddTransient<IRateProviderFactory, RateProviderFactory>();
-builder.Services.AddKeyedTransient<IExchangeRateProvider, NbpExchangeRateProvider>("nbp");
-builder.Services.AddSingleton<IProviderCatalogService, ProviderCatalogService>();
-
-// HttpClient
-builder.Services.AddHttpClient<NbpClient>((sp, http) =>
-{
-    var nbp = sp.GetRequiredService<IOptions<NbpOptions>>().Value;
-    http.BaseAddress = new Uri(nbp.BaseUrl.TrimEnd('/') + "/");
-})
-.AddPolicyHandler(PollyPolicies.Retry());
-
-// Application services
-builder.Services.AddScoped<IQueryDispatcher, QueryDispatcher>();
-
-var assembly = typeof(GetRatesHandler).Assembly;
-foreach (var type in assembly.GetTypes())
-{
-    foreach (var iface in type.GetInterfaces())
-    {
-        if (iface.IsGenericType && iface.GetGenericTypeDefinition() == typeof(IQueryHandler<,>))
-            builder.Services.AddScoped(iface, type);
-    }
-}
+builder.Services.AddProblemDetails();
+builder.Services.AddRouting(o => o.LowercaseUrls = true);
+builder.Services.AddCors(o => o.AddDefaultPolicy(p 
+    => p.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod()));
 
 // Build
 var app = builder.Build();
 
-// Pipeline
-app.UseMiddleware<ExceptionMiddleware>();
+app.UseSerilogRequestLogging();
+app.UseCors();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
-app.UseAuthorization();
+app.UseWebApi(app.Environment.IsDevelopment());
 app.MapControllers();
 
 app.Run();
