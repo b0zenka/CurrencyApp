@@ -16,21 +16,21 @@ namespace CurrencyApp.WebApi.Controllers;
 [Route("api/[controller]")]
 public sealed class ExchangeController : ControllerBase
 {
-    private readonly GetRatesHandler _handler;
-    private readonly IDateTimeProvider _clock;
-    private readonly GetCurrenciesHandler _currenciesHandler;
     private readonly IOptions<ApiOptions> _apiOptions;
+    private readonly IProviderCatalogService _catalog;
+    private readonly IDateTimeProvider _clock;
+    private readonly IQueryDispatcher _dispatcher;
 
-    public ExchangeController(
-        GetRatesHandler handler,
-        GetCurrenciesHandler currenciesHandler, 
+    public ExchangeController( 
         IOptions<ApiOptions> apiOptions,
-        IDateTimeProvider clock)
+        IProviderCatalogService catalog,
+        IDateTimeProvider clock,
+        IQueryDispatcher dispatcher)
     {
-        _handler = handler; 
-        _currenciesHandler = currenciesHandler;
         _apiOptions = apiOptions;
+        _catalog = catalog;
         _clock = clock;
+        _dispatcher = dispatcher;
     }
 
     [HttpPost("rates")]
@@ -43,7 +43,7 @@ public sealed class ExchangeController : ControllerBase
     {
         var query = GetRatesMapper.ToQuery(req, _clock);
 
-        var result = await _handler.Handle(query, ct);
+        var result = await _dispatcher.Query<GetRatesQuery, RateSeriesDto?>(query, ct);
         return result is null ? NoContent() : Ok(result);
     }
 
@@ -65,7 +65,9 @@ public sealed class ExchangeController : ControllerBase
             ? (_apiOptions.Value.Default?.ToLowerInvariant() ?? "nbp")
             : api.ToLowerInvariant();
 
-        var result = await _currenciesHandler.Handle(new GetCurrenciesQuery(key), ct);
+        var result = await _dispatcher.Query<GetCurrenciesQuery, IReadOnlyList<(string, string)>>(
+            new GetCurrenciesQuery(key), ct);
+        
         if (result.Count == 0)
             return NoContent();
 

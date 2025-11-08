@@ -1,7 +1,7 @@
 using CurrencyApp.Application.Abstractions;
-using CurrencyApp.Application.Features.Currencies.GetCurrencies;
 using CurrencyApp.Application.Features.Exchange.GetRates;
 using CurrencyApp.Infrastructure.Configuration;
+using CurrencyApp.Infrastructure.Dispatching;
 using CurrencyApp.Infrastructure.Http;
 using CurrencyApp.Infrastructure.Providers;
 using CurrencyApp.Infrastructure.Providers.Nbp;
@@ -64,8 +64,17 @@ builder.Services.AddHttpClient<NbpClient>((sp, http) =>
 .AddPolicyHandler(PollyPolicies.Retry());
 
 // Application services
-builder.Services.AddScoped<GetRatesHandler>();
-builder.Services.AddScoped<GetCurrenciesHandler>();
+builder.Services.AddScoped<IQueryDispatcher, QueryDispatcher>();
+
+var assembly = typeof(GetRatesHandler).Assembly;
+foreach (var type in assembly.GetTypes())
+{
+    foreach (var iface in type.GetInterfaces())
+    {
+        if (iface.IsGenericType && iface.GetGenericTypeDefinition() == typeof(IQueryHandler<,>))
+            builder.Services.AddScoped(iface, type);
+    }
+}
 
 // Build
 var app = builder.Build();

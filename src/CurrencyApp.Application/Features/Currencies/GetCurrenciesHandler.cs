@@ -3,7 +3,7 @@ using CurrencyApp.Domain.Enums;
 
 namespace CurrencyApp.Application.Features.Currencies.GetCurrencies;
 
-public sealed class GetCurrenciesHandler
+public sealed class GetCurrenciesHandler : IQueryHandler<GetCurrenciesQuery, IReadOnlyList<(string Code, string Name)>>
 {
     private readonly IRateProviderFactory _factory;
     private readonly IUiFormatting _uiFormatting;
