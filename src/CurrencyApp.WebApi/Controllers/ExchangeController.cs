@@ -2,11 +2,9 @@
 using CurrencyApp.Application.DTO;
 using CurrencyApp.Application.Features.Currencies.GetCurrencies;
 using CurrencyApp.Application.Features.Exchange.GetRates;
-using CurrencyApp.Domain.Enums;
 using CurrencyApp.Infrastructure.Configuration;
 using CurrencyApp.WebApi.Contracts;
 using CurrencyApp.WebApi.Mapping;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -50,9 +48,9 @@ public sealed class ExchangeController : ControllerBase
     [HttpGet("providers")]
     [ProducesResponseType(typeof(IEnumerable<ProviderDto>), 200)]
     [ProducesResponseType(204)]
-    public IActionResult GetProviders([FromServices] IProviderCatalogService catalog)
+    public IActionResult GetProviders()
     {
-        var list = catalog.GetEnabled();
+        var list = _catalog.GetEnabled();
         return list.Count == 0 ? NoContent() : Ok(list);
     }
 
