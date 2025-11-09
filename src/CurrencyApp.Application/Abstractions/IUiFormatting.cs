@@ -5,4 +5,5 @@ namespace CurrencyApp.Application.Abstractions;
 public interface IUiFormatting
 {
     CurrencySort CurrencySort { get; }
+    string DateFormat { get; }
 }

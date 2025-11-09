@@ -6,8 +6,13 @@ namespace CurrencyApp.Application.Features.Exchange.GetRates;
 public sealed class GetRatesHandler : IQueryHandler<GetRatesQuery, RateSeriesDto?>
 {
     private readonly IRateProviderFactory _factory;
-    public GetRatesHandler(IRateProviderFactory factory) => _factory = factory;
+    private readonly IUiFormatting _formatting;
 
+    public GetRatesHandler(IRateProviderFactory factory, IUiFormatting formatting)
+    {
+        _factory = factory;
+        _formatting = formatting;
+    }
     public async Task<RateSeriesDto?> Handle(GetRatesQuery q, CancellationToken ct)
     {
         var provider = _factory.Get(q.Api);
@@ -16,6 +21,6 @@ public sealed class GetRatesHandler : IQueryHandler<GetRatesQuery, RateSeriesDto
         if (series.IsEmpty) 
             return null;
 
-        return Mapping.ToDto(series);
+        return Mapping.ToDto(series, _formatting.DateFormat);
     }
 }

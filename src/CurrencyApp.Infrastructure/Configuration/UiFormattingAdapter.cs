@@ -8,5 +8,7 @@ public sealed class UiFormattingAdapter : IUiFormatting
 {
     private readonly UiFormattingOptions _opts;
     public UiFormattingAdapter(IOptions<UiFormattingOptions> opts) => _opts = opts.Value;
+    
     public CurrencySort CurrencySort => _opts.CurrencySort;
+    public string DateFormat => _opts.DateFormat;
 }
