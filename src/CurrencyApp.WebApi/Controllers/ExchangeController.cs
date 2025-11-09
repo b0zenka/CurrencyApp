@@ -31,12 +31,12 @@ public sealed class ExchangeController : ControllerBase
         _dispatcher = dispatcher;
     }
 
-    [HttpPost("rates")]
+    [HttpGet("rates")]
     [ProducesResponseType(typeof(RateSeriesDto), 200)]
     [ProducesResponseType(204)]
     [ProducesResponseType(typeof(ValidationProblemDetails), 400)]
     public async Task<IActionResult> GetRates(
-        [FromBody] GetRatesRequest req,
+        [FromQuery] GetRatesRequest req,
         CancellationToken ct)
     {
         var query = GetRatesMapper.ToQuery(req, _clock);
