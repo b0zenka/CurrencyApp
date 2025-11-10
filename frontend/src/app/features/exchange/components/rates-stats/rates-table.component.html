@@ -1,0 +1,22 @@
+<ui-card>
+  <table>
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Kurs</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (p of data.points; track p.date) {
+      <tr>
+        <td>{{ p.date }}</td>
+        <td>1 {{ data.source }} = {{ (p?.rate ?? 0) | number:'1.4-4' }} {{ data.target }}</td>
+      </tr>
+      } @empty {
+      <tr>
+        <td colspan="2">Brak danych</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</ui-card>
