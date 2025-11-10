@@ -1,0 +1,14 @@
+<div class="container">
+  <currency-form (submitForm)="onSubmit($event)"></currency-form>
+
+  @if (loading()) {
+  <div class="mt">Ładowanie…</div>
+  } @else {
+  @if (result()) {
+  <rates-stats [data]="result()!"></rates-stats>
+  <rates-table class="mt" [data]="result()!"></rates-table>
+  } @else {
+  <div class="mt">Brak danych.</div>
+  }
+  }
+</div>
