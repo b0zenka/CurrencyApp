@@ -28,8 +28,8 @@ Zbudowana w architekturze **Clean Architecture** z użyciem **.NET** po stronie 
 
 ### 1. Klonowanie repozytorium
 ```bash
-git clone https://github.com/<twoje-repo>/currency-app-v2.git
-cd currency-app-v2
+git clone https://github.com/b0zenka/CurrencyApp.git
+cd CurrencyApp
 ```
 
 ---
@@ -77,7 +77,7 @@ Frontend domyślnie dostępny będzie pod adresem:
 👉 `http://localhost:4200`
 
 > Upewnij się, że backend działa przed uruchomieniem frontendu.  
-> Adres API można zmienić w pliku `src/environments/environment.ts`.
+> Adres API można zmienić w pliku `proxy.conf.json`.
 
 ---
 
@@ -106,10 +106,10 @@ CurrencyApp/
  │   └── appsettings.json
  └── frontend/
      ├── src/
-     │   ├── app/
-     │   ├── assets/
-     │   └── environments/
-     └── angular.json
+     │   └── app/
+     ├── angular.json
+     ├── package.json
+     └── proxy.conf.json
 ```
 
 ---
