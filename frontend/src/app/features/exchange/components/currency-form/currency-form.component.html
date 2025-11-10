@@ -1,0 +1,55 @@
+<ui-card>
+  <div class="grid">
+    <!-- API na pełną szerokość -->
+    <label class="col-span-2">
+      <span>API</span>
+      <select [value]="providerId()" #prov (change)="providerId.set(prov.value); loadCurrencies()">
+        @for (a of providers; track a.key) {
+          <option [value]="a.key">{{ a.name }}</option>
+        } @empty {
+          <option disabled>Brak dostawców</option>
+        }
+      </select>
+    </label>
+
+    <!-- Waluty w jednym wierszu -->
+    <label>
+      <span>Waluta źródłowa</span>
+      <select [value]="source()" #srcSel (change)="source.set(srcSel.value)">
+        <option value="" disabled>Wybierz</option>
+        @for (c of currencies; track c.code) {
+          <option [value]="c.code">{{ c.code }} - {{ c.name }}</option>
+        } @empty {
+          <option disabled>Brak walut</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      <span>Waluta docelowa</span>
+      <select [value]="target()" #tgtSel (change)="target.set(tgtSel.value)">
+        <option value="" disabled>Wybierz</option>
+        @for (c of currencies; track c.code) {
+          <option [value]="c.code">{{ c.code }} - {{ c.name }}</option>
+        } @empty {
+          <option disabled>Brak walut</option>
+        }
+      </select>
+    </label>
+
+    <!-- Daty w jednym wierszu -->
+    <label>
+      <span>Data od</span>
+      <input type="date" [value]="from()" #fromInput (change)="from.set(fromInput.value)" />
+    </label>
+
+    <label>
+      <span>Data do</span>
+      <input type="date" [value]="to()" #toInput (change)="to.set(toInput.value)" />
+    </label>
+  </div>
+
+  <div class="actions">
+    <button class="primary" (click)="submit()">Przelicz</button>
+  </div>
+</ui-card>

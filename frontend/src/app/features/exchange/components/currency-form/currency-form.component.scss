@@ -1,0 +1,37 @@
+:host { display:block; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.col-span-2 { grid-column: 1 / -1; }
+
+label { display:flex; flex-direction:column; gap:6px; }
+
+select, input[type="date"] {
+  width: 100%;
+  background: #181818;
+  color: #fff;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.actions { margin-top: 12px; }
+
+button.primary {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #2a6;
+  color: #fff;
+  border: 0;
+  cursor: pointer;
+}
+
+/* Mobile fallback: jedna kolumna */
+@media (max-width: 640px) {
+  .grid { grid-template-columns: 1fr; }
+  .col-span-2 { grid-column: auto; }
+}
