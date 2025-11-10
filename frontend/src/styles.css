@@ -1,0 +1,12 @@
+html,body{ height:100%; background:#0e0e0e; color:#eaeaea; font-family: Inter, system-ui, Arial, sans-serif; }
+*,*::before,*::after{ box-sizing:border-box; }
+button{ cursor:pointer; }
+
+
+table{ width:100%; border-collapse:collapse; }
+th,
+td {
+  border-bottom: 1px solid #333;
+  text-align: left;
+  padding: 8px;
+}
