@@ -48,11 +48,11 @@ dotnet restore
 
 #### Uruchomienie aplikacji:
 ```bash
-dotnet run --project CurrencyApp.WebApi
+dotnet run --project src\CurrencyApp.WebApi\CurrencyApp.WebApi.csproj --launch-profile https
 ```
 
 Aplikacja backendowa domyślnie uruchomi się pod adresem:  
-👉 `https://localhost:44365`
+👉 `https://localhost:7134`
 
 ---
 
@@ -70,7 +70,7 @@ npm install
 
 #### Uruchomienie aplikacji:
 ```bash
-ng serve
+npm start
 ```
 
 Frontend domyślnie dostępny będzie pod adresem:  
